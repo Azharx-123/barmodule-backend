@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
+const Course = require("../models/Course"); 
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
 const { sendWelcomeEmail } = require("../utils/emailService");
@@ -35,11 +36,20 @@ router.post("/register", async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Cari course default (paling awal dibuat) untuk auto-enroll ⬅️ tambahan
+    const defaultCourse = await Course.findOne().sort({ createdAt: 1 });
+    if (!defaultCourse) {
+      logger.warn("Tidak ada course tersedia untuk auto-enroll user baru");
+    }
+
     // Create user
     const user = new User({
       name,
       email,
       password: hashedPassword,
+      enrolledCourses: defaultCourse
+        ? [{ courseId: defaultCourse._id, enrolledAt: Date.now(), progress: 0 }]
+        : [], // ⬅️ tambahan
     });
     await user.save();
 
