@@ -8,7 +8,11 @@ const {
   cloudinary,
   extractPublicId,
 } = require("../config/cloudinary");
-const { authMiddleware, adminMiddleware } = require("../middleware/auth");
+const {
+  authMiddleware,
+  staffMiddleware,
+  teacherMiddleware,
+} = require("../middleware/auth");
 const User = require("../models/User");
 const logger = require("../utils/logger");
 const jwt = require("jsonwebtoken");
@@ -49,11 +53,11 @@ router.post(
   }
 );
 
-// Upload course image (Admin only)
+// Upload course image 
 router.post(
   "/course",
   authMiddleware,
-  adminMiddleware,
+  teacherMiddleware,
   uploadCourse.single("image"),
   async (req, res) => {
     try {
@@ -71,14 +75,14 @@ router.post(
       logger.error("Upload course image error:", error);
       res.status(500).json({ message: error.message });
     }
-  }
+  },
 );
 
 // Upload gambar deskripsi kelas / course content (Admin only)
 router.post(
   "/course-content",
   authMiddleware,
-  adminMiddleware,
+  teacherMiddleware,
   uploadCourseContent.single("image"),
   async (req, res) => {
     try {
@@ -96,14 +100,14 @@ router.post(
       logger.error("Upload course content image error:", error);
       res.status(500).json({ message: error.message });
     }
-  }
+  },
 );
 
-// Upload material image (Admin only)
+// Upload material image
 router.post(
   "/material",
   authMiddleware,
-  adminMiddleware,
+  teacherMiddleware,
   uploadMaterial.single("image"),
   async (req, res) => {
     try {
@@ -121,11 +125,11 @@ router.post(
       logger.error("Upload material image error:", error);
       res.status(500).json({ message: error.message });
     }
-  }
+  },
 );
 
 // Delete image (Admin only)
-router.delete("/image", authMiddleware, adminMiddleware, async (req, res) => {
+router.delete("/image", authMiddleware, teacherMiddleware, async (req, res) => {
   try {
     const { imageUrl } = req.body;
 

@@ -7,7 +7,7 @@ const logger = require("../utils/logger");
 
 // Helper: cek apakah user berhak akses diskusi course ini (admin selalu boleh, user lain harus enrolled)
 const canAccessDiscussion = async (reqUser, courseId) => {
-  if (reqUser.role === "admin") return true;
+  if (["admin", "teacher"].includes(reqUser.role)) return true;
   const user = await User.findById(reqUser.userId).select("enrolledCourses");
   return !!user?.enrolledCourses?.some(
     (ec) => ec.courseId.toString() === courseId,
