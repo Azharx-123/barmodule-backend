@@ -80,6 +80,7 @@ router.delete(
           .json({ message: "Guru tidak bisa menghapus sesama guru" });
       }
       await User.findByIdAndDelete(req.params.id);
+      req.app.get("io").to(`user-${req.params.id}`).emit("force-logout");
       logger.success(`User deleted: ${user.email}`);
       res.json({ message: "User berhasil dihapus" });
     } catch (error) {

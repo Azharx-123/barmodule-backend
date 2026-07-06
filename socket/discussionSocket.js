@@ -25,6 +25,8 @@ const initDiscussionSocket = (io) => {
       `Discussion socket connected: ${socket.id} (user: ${socket.user.userId})`,
     );
 
+    socket.join(`user-${socket.user.userId}`);
+
     // Client join room diskusi untuk 1 course — sekaligus jadi gerbang otorisasi.
     // Admin dan guru selalu boleh join; user lain harus enrolled di course tsb.
     socket.on("join-course", async (courseId) => {

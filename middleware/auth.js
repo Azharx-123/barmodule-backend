@@ -1,21 +1,25 @@
 const jwt = require("jsonwebtoken");
 const logger = require("../utils/logger");
+const User = require("../models/User");
 
 // Middleware untuk autentikasi
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
-
-    if (!token) {
-      return res.status(401).json({
-        message: "Akses ditolak - Token tidak ditemukan",
-      });
-    }
+    if (!token)
+      return res
+        .status(401)
+        .json({ message: "Akses ditolak - Token tidak ditemukan" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret_key");
 
+    // ⬅️ tambahan: pastikan user masih ada
+    const userExists = await User.exists({ _id: decoded.userId });
+    if (!userExists) {
+      return res.status(401).json({ message: "Akun sudah tidak ada" });
+    }
+
     req.user = decoded;
-    logger.info(`User authenticated: ${decoded.userId}`);
     next();
   } catch (error) {
     logger.error("Authentication error:", error.message);

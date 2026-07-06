@@ -35,6 +35,7 @@ const contactRoutes = require("./routes/contact.routes");
 const adminRoutes = require("./routes/admin.routes");
 const uploadRoutes = require("./routes/upload.routes");
 const discussionRoutes = require("./routes/discussion.routes");
+const assignmentRoutes = require("./routes/assignment.routes");
 
 // API Routes
 app.use("/api/auth", authRoutes);
@@ -45,6 +46,7 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/discussion", discussionRoutes);
+app.use("/api/assignments", assignmentRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
@@ -73,6 +75,8 @@ const io = new Server(server, {
   },
 });
 initDiscussionSocket(io);
+
+app.set("io", io);
 
 // Start server — pakai server.listen (bukan app.listen) supaya Socket.io ikut aktif
 const PORT = process.env.PORT || 5000;
