@@ -26,12 +26,12 @@ const initDiscussionSocket = (io) => {
     );
 
     // Client join room diskusi untuk 1 course — sekaligus jadi gerbang otorisasi.
-    // Admin selalu boleh join; user lain harus enrolled di course tsb.
+    // Admin dan guru selalu boleh join; user lain harus enrolled di course tsb.
     socket.on("join-course", async (courseId) => {
       try {
         if (!courseId) return;
 
-        let allowed = socket.user.role === "admin";
+        let allowed = ["admin", "teacher"].includes(socket.user.role);
         if (!allowed) {
           const user = await User.findById(socket.user.userId).select(
             "enrolledCourses",
@@ -47,7 +47,7 @@ const initDiscussionSocket = (io) => {
         }
 
         socket.join(`course-${courseId}`);
-        socket.discussionCourseId = courseId; // dipakai untuk validasi send-message
+        socket.discussionCourseId = courseId;
       } catch (error) {
         logger.error("join-course error:", error.message);
         socket.emit("discussion-error", "Gagal bergabung ke diskusi");
@@ -91,15 +91,13 @@ const initDiscussionSocket = (io) => {
       }
     });
 
-    // Hapus pesan — admin only. Role dicek langsung dari JWT (sama seperti adminMiddleware di REST),
-    // jadi tidak perlu query User lagi supaya delete terasa instan.
+    // Hapus pesan — admin dan guru
     socket.on("delete-message", async ({ messageId }) => {
       try {
-        if (socket.user.role !== "admin") {
-          socket.emit("discussion-error", "Akses ditolak - Admin only");
-          return;
-        }
-
+       if (!["admin", "teacher"].includes(socket.user.role)) {
+         socket.emit("discussion-error", "Akses ditolak - Admin only");
+         return;
+       }
         const deleted = await Message.findByIdAndDelete(messageId);
         if (!deleted) return;
 
@@ -107,7 +105,7 @@ const initDiscussionSocket = (io) => {
           messageId,
         });
         logger.info(
-          `Message ${messageId} deleted by admin ${socket.user.userId}`,
+          `Message ${messageId} deleted by ${socket.user.role} ${socket.user.userId}`,
         );
       } catch (error) {
         logger.error("delete-message error:", error.message);
