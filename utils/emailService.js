@@ -11,14 +11,14 @@ const sendEmail = async (to, subject, body) => {
 };
 
 const sendWelcomeEmail = async (user) => {
-  const subject = "Selamat Datang di Barmodule!";
+  const subject = "Selamat Datang di LMS untuk Kecantikan Kulit & Rambut!";
   const body = `
     Halo ${user.name},
     
-    Selamat datang di Barmodule E-Learning Platform!
+    Selamat datang di Learning Management System Platform!
     Kami senang Anda bergabung dengan kami.
     
-    Mulai belajar sekarang dan tingkatkan skill tata rias Anda!
+    Mulai belajar sekarang dan tingkatkan skill kecantikan kulit & rambut Anda!
     
     Salam,
     Tim Barmodule

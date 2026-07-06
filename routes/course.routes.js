@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
       ];
     }
 
-    const courses = await Course.find(query).select("-__v").sort("-createdAt");
+    const courses = await Course.find(query).select("-__v").sort("createdAt");
 
     res.json(courses);
   } catch (error) {
